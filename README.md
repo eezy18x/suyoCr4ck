@@ -33,26 +33,26 @@ A glitchy, GUI-based ZIP password cracker built in Python with Mr. Robot-style a
 
 ### 1. Clone the repository
 
-\`\`\`bash
+```
 git clone git@github.com:eezy18x/suyoCr4ck.git
 cd suyoCr4ck
-\`\`\`
+```
 
----
+
 
 ### 2. Install requirements
 
-\`\`\`bash
+```
 pip install -r requirements.txt
-\`\`\`
 
----
+
+```
 
 ### 3. Install wordlists (automatically downloads from Mega.nz)
 
-\`\`\`bash
+```
 ./install.sh
-\`\`\`
+```
 
 This script will:  
 - Check if \`/usr/share/wordlists\` exists  
@@ -62,9 +62,9 @@ This script will:
 
 ### 4. Run the tool
 
-\`\`\`bash
+```
 python3 main.py
-\`\`\`
+```
 
 ---
 
