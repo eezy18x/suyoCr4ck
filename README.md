@@ -107,20 +107,20 @@ suyoCr4ck/
 
 Wordlists are auto-installed via \`install.sh\`, or you can manually place your own in:
 
-\`\`\`
+```
 /usr/share/wordlists/
-\`\`\`
+```
 
 The tool auto-detects wordlists from there.
 
----
+```
 
 ## 👨‍💻 Created By
 
 **suyog1337**  
 _"Control is an illusion. But cracking it? That’s real."_
 
----
+```
 
 ## ⚠️ Disclaimer
 
