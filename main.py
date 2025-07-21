@@ -12,18 +12,21 @@ except ImportError:
 
 stop_cracking = False
 
+# --- Boot Screen ---
 def fake_boot_screen():
     lines = [
-        "[ OK ] Starting suyoCr4ck services...",
-        "[ OK ] Mounting fsociety modules...",
-        "[ OK ] Launching terminal interface...",
+        "[ OK ] Initializing suyoCr4ck system...",
+        "[ OK ] Loading fsociety modules...",
+        "[ OK ] Connecting to darknet...",
+        "[ OK ] Initial handshake completed...",
     ]
     os.system("clear" if os.name == "posix" else "cls")
     for line in lines:
         print(line)
-        time.sleep(random.uniform(0.1, 0.3))
+        time.sleep(random.uniform(0.2, 0.4))
     os.system("clear" if os.name == "posix" else "cls")
 
+# --- ASCII Art ---
 def read_ascii_art():
     try:
         with open("assets/ascii_art.txt") as f:
@@ -31,6 +34,7 @@ def read_ascii_art():
     except:
         return "=== suyoCr4ck ==="
 
+# --- Quotes / Dialogues ---
 def get_random_quote():
     try:
         with open("assets/quotes.txt") as f:
@@ -38,8 +42,18 @@ def get_random_quote():
     except:
         return "Hack the planet."
 
+def loop_quotes(label, delay=7):
+    def updater():
+        while True:
+            quote = get_random_quote()
+            type_writer(label, quote)
+            speak_quote(quote)
+            time.sleep(delay)
+    Thread(target=updater, daemon=True).start()
+
+# --- Glitch Effect ---
 def glitch_char(char):
-    glitch_pool = ['@', '#', '%', '&', '*', '?', '1']
+    glitch_pool = ['@', '#', '%', '&', '*', '?', '1', '$']
     return random.choice(glitch_pool) if random.random() < 0.15 else char
 
 def type_writer(label, text, delay=40):
@@ -52,6 +66,7 @@ def type_writer(label, text, delay=40):
         label.config(text=text)
     Thread(target=inner, daemon=True).start()
 
+# --- TTS ---
 if tts_available:
     engine = pyttsx3.init()
     engine.setProperty('rate', 140)
@@ -66,6 +81,7 @@ else:
     def speak_quote(quote):
         pass
 
+# --- Cracking Logic ---
 def crack_thread(zip_path, wordlist_path, progress_var, status_label, result_label):
     def update(percent, current_pass, eta):
         progress_var.set(percent)
@@ -77,6 +93,7 @@ def crack_thread(zip_path, wordlist_path, progress_var, status_label, result_lab
     success, message = crack_zip(zip_path, wordlist_path, update, stop_check)
     result_label.config(text=message)
 
+# --- Start Cracking ---
 def start_crack(zip_entry, wordlist_var, progress_var, status_label, result_label):
     global stop_cracking
     stop_cracking = False
@@ -94,31 +111,36 @@ def browse_file(entry):
         entry.delete(0, tk.END)
         entry.insert(0, path)
 
+# --- GUI ---
 def gui():
     root = tk.Tk()
     root.title("suyoCr4ck - ZIP Cracker")
     root.configure(bg="black")
-    root.geometry("800x520")
+    root.geometry("820x580")
 
-    ascii_label = tk.Label(root, text=read_ascii_art(), fg="red", bg="black", font=("Courier", 10), justify="left")
+    style = ttk.Style()
+    style.theme_use('clam')
+    style.configure("TProgressbar", foreground='green', background='lime')
+
+    # ASCII
+    ascii_label = tk.Label(root, text=read_ascii_art(), fg="red", bg="black", font=("Courier New", 11), justify="left")
     ascii_label.pack()
 
-    quote_label = tk.Label(root, text="", fg="green", bg="black", font=("Courier", 10))
-    quote_label.pack()
-    quote = get_random_quote()
-    type_writer(quote_label, quote)
-    speak_quote(quote)
+    # QUOTES
+    quote_label = tk.Label(root, text="", fg="#00ff00", bg="black", font=("Courier New", 10))
+    quote_label.pack(pady=5)
+    loop_quotes(quote_label)
 
     frame = tk.Frame(root, bg="black")
     frame.pack(pady=10)
 
-    zip_entry = tk.Entry(frame, width=50)
-    zip_entry.grid(row=0, column=1)
+    zip_entry = tk.Entry(frame, width=50, font=("Courier", 10))
+    zip_entry.grid(row=0, column=1, padx=10)
     tk.Label(frame, text="ZIP File:", fg="white", bg="black").grid(row=0, column=0)
-    tk.Button(frame, text="Browse", command=lambda: browse_file(zip_entry)).grid(row=0, column=2)
+    tk.Button(frame, text="Browse", command=lambda: browse_file(zip_entry), bg="#1f1", fg="black").grid(row=0, column=2, padx=5)
 
-    # Dropdown for wordlists
-    tk.Label(frame, text="Wordlist:", fg="white", bg="black").grid(row=1, column=0)
+    # Wordlist menu
+    tk.Label(frame, text="Wordlist:", fg="white", bg="black").grid(row=1, column=0, pady=5)
     wordlist_files = os.listdir("wordlists/")
     wordlist_var = tk.StringVar()
     wordlist_var.set(wordlist_files[0])
@@ -127,20 +149,36 @@ def gui():
     wordlist_menu.grid(row=1, column=1, columnspan=2)
 
     progress_var = tk.DoubleVar()
-    progress_bar = ttk.Progressbar(root, length=400, variable=progress_var)
-    progress_bar.pack(pady=5)
+    progress_bar = ttk.Progressbar(root, length=500, variable=progress_var)
+    progress_bar.pack(pady=8)
 
-    status_label = tk.Label(root, text="Waiting to start...", fg="white", bg="black")
+    status_label = tk.Label(root, text="Waiting to start...", fg="white", bg="black", font=("Courier", 10))
     status_label.pack()
 
-    result_label = tk.Label(root, text="", fg="cyan", bg="black", font=("Courier", 10))
-    result_label.pack()
+    result_label = tk.Label(root, text="", fg="cyan", bg="black", font=("Courier", 11, "bold"))
+    result_label.pack(pady=5)
 
     btn_frame = tk.Frame(root, bg="black")
     btn_frame.pack(pady=10)
 
-    tk.Button(btn_frame, text="Start", command=lambda: start_crack(zip_entry, wordlist_var, progress_var, status_label, result_label), bg="green").grid(row=0, column=0, padx=10)
-    tk.Button(btn_frame, text="Cancel", command=cancel_crack, bg="red").grid(row=0, column=1, padx=10)
+    start_btn = tk.Button(btn_frame, text="Start", width=10, bg="#0f0", fg="black",
+                          command=lambda: start_crack(zip_entry, wordlist_var, progress_var, status_label, result_label))
+    start_btn.grid(row=0, column=0, padx=10)
+
+    cancel_btn = tk.Button(btn_frame, text="Cancel", width=10, bg="red", fg="white", command=cancel_crack)
+    cancel_btn.grid(row=0, column=1, padx=10)
+
+    # Glow Effect
+    def animate():
+        colors = ['#0f0', '#1f1', '#2f2', '#3f3']
+        i = 0
+        while True:
+            current = colors[i % len(colors)]
+            start_btn.config(bg=current)
+            root.update_idletasks()
+            time.sleep(0.2)
+            i += 1
+    Thread(target=animate, daemon=True).start()
 
     root.mainloop()
 
